@@ -21,7 +21,7 @@ class XChangeTests: XCTestCase {
 		Constants.CurrencyAPIKey = initialApiKey
     }
 
-	//If Realm() fails, it is documented to be only the first call for speciific reasons. Therefore we call it in appDelegate
+	//If Realm() fails, it is documented to be only the first call for specific reasons. Therefore we call it in appDelegate
 	func testRealmInitialInitialization() {
 		XCTAssertNoThrow(try RealmStorage.firstCall())
 	}

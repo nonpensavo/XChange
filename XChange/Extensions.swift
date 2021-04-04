@@ -81,9 +81,9 @@ extension UITableView {
 }
 
 extension UIViewController {
-	func showErrorPopup(message : String, font: UIFont? = UIFont(name: "Avenir Next", size: 12), duration: TimeInterval = 4.0) {
+	func showErrorPopup(message : String, font: UIFont? = UIFont(name: "Avenir Next", size: 12), duration: TimeInterval = 4.0, height: CGFloat = 50.0) {
 		
-		let label = UILabel(frame: CGRect(x: 25, y: self.view.frame.size.height-100, width: self.view.frame.size.width-50, height: 50))
+		let label = UILabel(frame: CGRect(x: 25, y: self.view.frame.size.height-50-height, width: self.view.frame.size.width-50, height: height))
 		label.backgroundColor = UIColor.black.withAlphaComponent(0.6)
 		label.textColor = UIColor.white
 		label.font = font
@@ -98,5 +98,11 @@ extension UIViewController {
 		}, completion: {(isCompleted) in
 			label.removeFromSuperview()
 		})
+	}
+}
+
+extension Array {
+	func get(at index: Int) -> Element? {
+		return indices.contains(index) ? self[index] : nil
 	}
 }

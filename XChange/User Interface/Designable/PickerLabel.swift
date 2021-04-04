@@ -65,8 +65,6 @@ class PickerLabel: UIView {
 	}
 }
 
-
-
 extension PickerLabel {
 	private func initializeViews() {
 		

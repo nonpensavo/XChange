@@ -57,7 +57,9 @@ class CurrencyExchangeViewController: UIViewController {
 		
 		pickerView.delegate = self
 		pickerView.dataSource = self
+		
 		pickerViewContainer.isHidden = true
+		
 		pickerLabel.onPressed = { [weak self] in
 			self?.pickerTextField.endEditing(false)
 			self?.pickerViewContainer.isHidden = false
@@ -78,9 +80,9 @@ class CurrencyExchangeViewController: UIViewController {
 				let targetCurrencyCode = currency.code
 				let sourceCurrencyCode = exchangeRate.source
 				let targetAmount : Double = Double(self?.latestAmountValue ?? 1)
-				if let rate = exchangeRate.quotes.first(where: { $0.code == sourceCurrencyCode.appending(targetCurrencyCode) })?.rate {
-					let sameCurrency = targetCurrencyCode == sourceCurrencyCode
-					cell?.setValues(for: currency, to: sameCurrency ? nil :rate*targetAmount)
+				
+				if let rate = self?.getRateForCurrency(code: targetCurrencyCode), targetCurrencyCode != sourceCurrencyCode  {
+					cell?.setValues(for: currency, to: rate * targetAmount)
 				} else {
 					cell?.setValues(for: currency, to: nil)
 				}
@@ -150,6 +152,10 @@ extension CurrencyExchangeViewController {
 			}
 		}).disposed(by: disposeBag)
 	}
+	
+	private func getRateForCurrency(code: String) -> Double? {
+		return latestExchangeRate?.quotes.first(where: { $0.code.suffix(3) == code })?.rate
+	}
 }
 
 
@@ -200,14 +206,15 @@ extension CurrencyExchangeViewController {
 
 //MARK: - Table View configuration
 // we use hashable/datasource tables, minimum code maximum efficiency
-extension CurrencyExchangeViewController {
+extension CurrencyExchangeViewController : UITableViewDelegate {
 	private func initializeTableView(){
 		tableView.contentInset = UIEdgeInsets(top: 15, left: 0, bottom: 15, right: 0)
-		tableView.allowsSelection = false
+		tableView.allowsSelection = true
 		tableView.showsHorizontalScrollIndicator = false
 		tableView.isPagingEnabled = false
 		tableView.separatorStyle = .none
 		tableView.dataSource = dataSource
+		tableView.delegate = self
 		tableView.register(ExchangeRateTableViewCell.self, forCellReuseIdentifier: ExchangeRateTableViewCell.identifier)
 	}
 	
@@ -218,5 +225,20 @@ extension CurrencyExchangeViewController {
 			snapshot.appendItems(currencies)
 			snapshot.reloadItems(currencies)
 			dataSource.apply(snapshot, animatingDifferences: false)
+	}
+	
+	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+		guard let targetCurrencyCode = currencies.get(at: indexPath.row)?.code, let rate = getRateForCurrency(code: targetCurrencyCode) else { return }
+		
+		let targetAmount : Double = Double(latestAmountValue)
+		
+		let numberFormatter = NumberFormatter()
+		numberFormatter.numberStyle = .decimal
+		//High fraction due to most currencies having very low conversion rate, there is a high risk of showing 0 for most 1 to 1 rates.
+		numberFormatter.maximumFractionDigits = 12
+		let stringRepresentation = numberFormatter.string(for: targetAmount * rate)
+		let pasteBoard = UIPasteboard.general
+		pasteBoard.string = stringRepresentation
+		showErrorPopup(message: "Copied!", duration: 2, height: 35.0)
 	}
 }

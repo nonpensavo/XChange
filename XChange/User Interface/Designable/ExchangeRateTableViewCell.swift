@@ -61,6 +61,16 @@ class ExchangeRateTableViewCell: UITableViewCell {
 		return label
 	}()
 	
+	private lazy var selectionView : RoundedUIView = {
+		let view = RoundedUIView()
+		view.translatesAutoresizingMaskIntoConstraints = false
+		view.cornerRadius = 12
+		view.backgroundColor = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.08)
+		view.alpha = 1.0
+		
+		return view
+	}()
+	
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		initializeViews()
@@ -76,13 +86,30 @@ class ExchangeRateTableViewCell: UITableViewCell {
 		initializeViews()
 	}
 	
+	override func setSelected(_ selected: Bool, animated: Bool) {
+		
+		UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: { [weak self] in
+			self?.selectionView.alpha = selected ? 1.0 : 0.0
+		}, completion: { [weak self] (isCompleted) in
+			if selected {
+				self?.setSelected(false, animated: animated)
+			}
+		})
+		
+		
+		
+	}
+
 	fileprivate func initializeViews(){
 		backgroundColor = .clear
+		selectionStyle = .none
 		
 		addSubview(titleLabel)
 		addSubview(descriptionLabel)
 		addSubview(exchangeRateLabel)
 		addSubview(lineView)
+		addSubview(selectionView)
+		
 		initializeConstraints()
 	}
 	
@@ -96,13 +123,18 @@ class ExchangeRateTableViewCell: UITableViewCell {
 		titleLabel.widthAnchor.constraint(equalToConstant: 90).isActive = true
 		
 		exchangeRateLabel.topAnchor.constraint(equalTo: titleLabel.topAnchor).isActive = true
-		exchangeRateLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 10).isActive = true
+		exchangeRateLabel.leadingAnchor.constraint(greaterThanOrEqualTo: titleLabel.trailingAnchor, constant: 10).isActive = true
 		exchangeRateLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20).isActive = true
 		exchangeRateLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -10).isActive = true
 		
 		lineView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -3).isActive = true
 		lineView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true
 		lineView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20).isActive = true
+		
+		selectionView.topAnchor.constraint(equalTo: exchangeRateLabel.topAnchor, constant: -3).isActive = true
+		selectionView.bottomAnchor.constraint(equalTo: exchangeRateLabel.bottomAnchor, constant: 2).isActive = true
+		selectionView.leadingAnchor.constraint(equalTo: exchangeRateLabel.leadingAnchor, constant: -9).isActive = true
+		selectionView.trailingAnchor.constraint(equalTo: exchangeRateLabel.trailingAnchor, constant: 6).isActive = true
 	}
 	
 	func setValues(for currency: Currency, to result: Double?){

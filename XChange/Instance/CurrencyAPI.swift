@@ -18,7 +18,9 @@ struct APIKeyword {
 class CurrencyAPI {
 	private var serviceDomain : String = "http://api.currencylayer.com/"
 	private var accessKey : String { APIKeyword.accessKey.appending(Constants.CurrencyAPIKey) }
-
+	
+	//Singleton
+	private init(){}
 	static let instance = CurrencyAPI()
 	
 	/// Fetches available currency list and returns via completion handler. Resulting list might vary with the one from exchange rates
@@ -69,11 +71,8 @@ class CurrencyAPI {
 // This section is completely commented out due to redundancy, but was initally developed for demonstration purposes only.
 // In order to use it again, need to add pod 'RxCocoa' in PodFile and update workspace using pod install.
 
-
-
 // Data request analogues using rx library. Functionality is equal to the above except using rx extension for URLSession from RxCocoa pod that can return observable for caller to subscribe for response.
 // Using rx from rxCocoa library to demonstrate data requests without callbacks or delegates, although it is subscribing to itself and using singletons to store the result, otherwise couldn't make it modular to comment out without changing other files.
-
 
 
 import RxSwift
